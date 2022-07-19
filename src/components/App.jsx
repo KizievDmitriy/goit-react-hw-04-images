@@ -1,4 +1,4 @@
-import { Component } from 'react';
+import { useState, useEffect } from 'react';
 import { toast } from 'react-toastify';
 import styles from './App.module.css';
 import { Searchbar } from './Searchbar/Searchbar';
@@ -7,30 +7,28 @@ import { Modal } from 'components/Modal/Modal';
 import { Loader } from './Loader/Loader';
 import { Button } from './Button/Button';
 
-export class App extends Component {
-  state = {
-    imgName: '',
-    page: 1,
-    showModal: false,
-    imageSelected: null,
-    status: 'idle',
-    fullGallery: [],
-  };
-
-  handleFormSubmit = imgName => {
-    if (imgName === this.state.imgName) {
+export const App = () => {
+  const [imgName, setImgName] = useState('');
+  const [page, setPage] = useState(1);
+  const [showModal, setShowModal] = useState(false);
+  const [imageSelected, setImageSelected] = useState(null);
+  const [status, setStatus] = useState('idle');
+  const [fullGallery, setFullGallery] = useState([]);
+  const [perPage] = useState(12);
+  
+   const handleFormSubmit = imgForSubmit => {
+    if (imgForSubmit === imgName) {
       return;
     }
-
-    this.setState({
-      imgName,
-      page: 1,
-    });
+    setImgName(imgForSubmit);
+    setPage(1);
+     setFullGallery([]);
+     imgForSubmit.reset();
   };
 
-  fetchImg = async (imgName, page) => {
+  const fetchImg = async (imgName, page, perPage) => {
     const response = await fetch(
-      `https://pixabay.com/api/?q=${imgName}&page=${page}&key=27112752-ba9c06a82163f4d21667ea4bf&image_type=photo&orientation=horizontal&per_page=12`
+      `https://pixabay.com/api/?q=${imgName}&page=${page}&key=27112752-ba9c06a82163f4d21667ea4bf&image_type=photo&orientation=horizontal&per_page=${perPage}`
     );
     if (response.ok) {
       return response.json();
@@ -38,90 +36,58 @@ export class App extends Component {
     return await Promise.reject(new Error(`Not found ${imgName}`));
   };
 
-  componentDidUpdate(prevProps, prevState) {
-    const { imgName, page, fullGallery } = this.state;
-
-    if (prevState.imgName !== imgName || prevState.page !== page) {
-      this.galleryClean(prevState);
-      this.setState({ status: 'pending' });
-      this.fetchImg(imgName, page).then(imgArray => {
-        const newImgArray = imgArray.hits.map(
-          ({ id, tags, webformatURL, largeImageURL }) => {
-            return { id, tags, webformatURL, largeImageURL };
-          }
-        );
-
-        if (imgArray.hits.length === 0) {
-          toast.error('No images found for your request');
-          return this.setState({ status: 'idle' });
-        } else {
-          page === 1 && toast.success(`Found ${imgArray.totalHits} images`);
-        }
-
-        this.setState(({ fullGallery }) => ({
-          fullGallery: [...fullGallery, ...newImgArray],
-          status: 'resolved',
-        }));
-
-        if (fullGallery.length + 12 === imgArray.totalHits) {
-          toast.warn('End of list reached');
-          this.setState({ status: 'idle' });
-        }
-      });
+  useEffect(() => {
+    if (!imgName) {
+      return;
     }
-    this.scrollBottom();
-  }
 
-  galleryClean = prevState => {
-    const { imgName } = this.state;
-    const prevImgName = prevState.imgName;
+    setStatus('pending');
+    fetchImg(imgName, page).then(imgArray => {
+      const newImgArray = imgArray.hits.map(
+        ({ id, tags, webformatURL, largeImageURL }) => {
+          return { id, tags, webformatURL, largeImageURL };
+        }
+      );
+      if (imgArray.hits.length === 0) {
+        toast.error('No images found for your request');
+        return setStatus('idle');
+      } else {
+        page === 1 && toast.success(`Found ${imgArray.totalHits} images`);
+      }
 
-    if (prevImgName !== imgName) {
-      this.setState(() => ({
-        fullGallery: [],
-      }));
-    }
-  };
+      setFullGallery(prevSet => [...prevSet, ...newImgArray]);
+      setStatus('resolved');
 
-  scrollBottom = () => {
-    window.scrollTo({
-      top: document.body.scrollHeight,
-      left: 0,
-      behavior: 'smooth',
+      if (page * perPage === imgArray.totalHits) {
+        toast.warn('End of list reached');
+        setStatus('idle');
+      }
     });
+  }, [imgName, page, perPage]);
+
+  const toggleModal = (largeImageURL, tags) => {
+    setShowModal(!showModal);
+    setImageSelected({ largeImageURL, tags });
   };
 
-  toggleModal = (largeImageURL, tags) => {
-    this.setState(({ showModal }) => ({
-      showModal: !showModal,
-    }));
-
-    this.setState({ imageSelected: { largeImageURL, tags } });
+  const onClickLoadMore = () => {
+    setPage(prevSetPage => prevSetPage + 1);
   };
 
-  onClickLoadMore = () => {
-    this.setState(state => {
-      return { page: state.page + 1 };
-    });
-  };
-
-  render() {
-    const { showModal, imageSelected, status, fullGallery } = this.state;
     return (
       <div className={styles.App}>
-        <Searchbar onSubmit={this.handleFormSubmit} />
+        <Searchbar onSubmit={handleFormSubmit} />
         <ImageGallery
           fullGallery={fullGallery}
-          toggleModal={this.toggleModal}
+          toggleModal={toggleModal}
         />
         {showModal && (
-          <Modal imageSelected={imageSelected} toggleModal={this.toggleModal} />
+          <Modal imageSelected={imageSelected} toggleModal={toggleModal} />
         )}
         <div className={styles.container}>
-          {status === 'resolved' && <Button onClick={this.onClickLoadMore} />}
+          {status === 'resolved' && <Button onClick={onClickLoadMore} />}
           {status === 'pending' && <Loader />}
         </div>
       </div>
     );
-  }
 }

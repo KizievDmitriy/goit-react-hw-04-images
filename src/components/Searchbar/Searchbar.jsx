@@ -17,7 +17,7 @@ export const Searchbar = ({ onSubmit }) => {
   const handleSubmit = event => {
     
     event.preventDefault();
-
+   
     if (imgName === '') {
       return toast.warn('Enter something, please');
     }
@@ -46,6 +46,7 @@ export const Searchbar = ({ onSubmit }) => {
     );
   
 }
+
 Searchbar.propTypes = {
     onSubmit: PropTypes.func.isRequired,
   };
