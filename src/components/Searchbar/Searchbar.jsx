@@ -1,4 +1,4 @@
-import { Component } from 'react';
+import { useState } from 'react';
 import PropTypes from 'prop-types';
 import { ToastContainer, toast } from 'react-toastify';
 import 'react-toastify/dist/ReactToastify.css';
@@ -6,23 +6,16 @@ import styles from './Searchbar.module.css';
 import { MdSearch } from 'react-icons/md';
 
 
-export class Searchbar extends Component {
-  state = {
-    imgName: '',
+export const Searchbar = ({ onSubmit }) => {
+  
+  const [imgName, setImgName] = useState('');
+
+  const handleNameChange = event => {
+    setImgName(event.currentTarget.value);
   };
 
-  static propTypes = {
-    onSubmit: PropTypes.func.isRequired,
-  };
-
-  handleNameChange = event => {
-    this.setState({ imgName: event.currentTarget.value });
-  };
-
-  handleSubmit = event => {
+  const handleSubmit = event => {
     
-    const { imgName } = this.state;
-    const { onSubmit } = this.props;
     event.preventDefault();
 
     if (imgName === '') {
@@ -30,21 +23,19 @@ export class Searchbar extends Component {
     }
   
     onSubmit(imgName);
-    
   };
 
-  render() {
     return (
       <header className={styles.searchbar}>
-        <form onSubmit={this.handleSubmit} className={styles.form}>
+        <form onSubmit={handleSubmit} className={styles.form}>
           <ToastContainer />
           <button type="submit" className={styles.button}>
             <MdSearch className={styles.buttonIcon} />  
           </button>
           <input
-            onChange={this.handleNameChange}
+            onChange={handleNameChange}
             className={styles.input}
-            value={this.state.imgName}
+            value={imgName}
             type="text"
             autoComplete="off"
             autoFocus
@@ -53,5 +44,8 @@ export class Searchbar extends Component {
         </form>
       </header>
     );
-  }
+  
 }
+Searchbar.propTypes = {
+    onSubmit: PropTypes.func.isRequired,
+  };
