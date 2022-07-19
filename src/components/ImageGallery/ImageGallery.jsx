@@ -1,24 +1,9 @@
-import { Component } from 'react';
+
 import PropTypes from 'prop-types';
 import { ImageGalleryItem } from 'components/ImageGalleryItem/ImageGalleryItem';
-
 import styles from './ImageGallery.module.css';
 
-export class ImageGallery extends Component {
-  static propTypes = {
-    fullGallery: PropTypes.arrayOf(
-      PropTypes.shape({
-        largeImageURL: PropTypes.string.isRequired,
-        tags: PropTypes.string.isRequired,
-        id: PropTypes.number.isRequired,
-        webformatURL: PropTypes.string.isRequired,
-      })
-    ).isRequired,
-    toggleModal: PropTypes.func.isRequired,
-  };
-
-  render() {
-    const { toggleModal, fullGallery } = this.props;
+export const ImageGallery = ({ toggleModal, fullGallery }) => {
 
     return (
       <ul className={styles.gallery}>
@@ -35,5 +20,16 @@ export class ImageGallery extends Component {
         })}
       </ul>
     );
-  }
 }
+
+ImageGallery.propTypes = {
+    fullGallery: PropTypes.arrayOf(
+      PropTypes.shape({
+        largeImageURL: PropTypes.string.isRequired,
+        tags: PropTypes.string.isRequired,
+        id: PropTypes.number.isRequired,
+        webformatURL: PropTypes.string.isRequired,
+      })
+    ).isRequired,
+    toggleModal: PropTypes.func.isRequired,
+  };
