@@ -1,11 +1,15 @@
 import { useState, useEffect } from 'react';
 import { toast } from 'react-toastify';
 import styles from './App.module.css';
+
+import { fetchImg } from 'servise/Api';
+
 import { Searchbar } from './Searchbar/Searchbar';
 import { ImageGallery } from './ImageGallery/ImageGallery';
 import { Modal } from 'components/Modal/Modal';
 import { Loader } from './Loader/Loader';
 import { Button } from './Button/Button';
+
 
 export const App = () => {
   const [imgName, setImgName] = useState('');
@@ -23,16 +27,6 @@ export const App = () => {
     setImgName(imgForSubmit);
     setPage(1);
      setFullGallery([]);
-  };
-
-  const fetchImg = async (imgName, page, perPage) => {
-    const response = await fetch(
-      `https://pixabay.com/api/?q=${imgName}&page=${page}&key=27112752-ba9c06a82163f4d21667ea4bf&image_type=photo&orientation=horizontal&per_page=${perPage}`
-    );
-    if (response.ok) {
-      return response.json();
-    }
-    return await Promise.reject(new Error(`Not found ${imgName}`));
   };
 
   useEffect(() => {
