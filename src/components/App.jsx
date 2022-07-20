@@ -23,7 +23,6 @@ export const App = () => {
     setImgName(imgForSubmit);
     setPage(1);
      setFullGallery([]);
-     imgForSubmit.reset();
   };
 
   const fetchImg = async (imgName, page, perPage) => {
