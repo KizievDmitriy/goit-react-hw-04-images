@@ -52,7 +52,6 @@
 .input {
     display: inline-block;
     width: 100%;
-    font: inherit;
     font-size: 20px;
     border: none;
     outline: none;

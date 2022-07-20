@@ -2,9 +2,23 @@ import { useEffect } from 'react';
 import PropTypes from 'prop-types';
 import styles from './Modal.module.css';
 
-export const Modal = ({ largeImageURL, tags, toggleModal }) => {
+export const Modal = ({ imageSelected, toggleModal }) => {
 
- const handleBackdropClick = e => {
+  const { largeImageURL, tags } = imageSelected;
+
+  function bodyRemoveNoScroll() {
+   const scrollY = document.body.style.top;
+   document.body.style.position = '';
+   document.body.style.top = '';
+   window.scrollTo(0, parseInt(scrollY || '0') * -1);
+  }
+
+  function bodyAddNoScroll() {
+   document.body.style.top = `-${window.scrollY}px`;
+   document.body.style.position = 'fixed';
+  }
+  
+  const handleBackdropClick = e => {
     if (e.target === e.currentTarget) {
       toggleModal();
     }
@@ -16,11 +30,12 @@ export const Modal = ({ largeImageURL, tags, toggleModal }) => {
         toggleModal();
       }
     };
-
     window.addEventListener('keydown', handleKeyDown);
-
+    bodyAddNoScroll()
+   
     return () => {
       window.removeEventListener('keydown', handleKeyDown);
+      bodyRemoveNoScroll()
     };
     }, [toggleModal]
   );
@@ -28,7 +43,7 @@ export const Modal = ({ largeImageURL, tags, toggleModal }) => {
     return (
       <div className={styles.overlay} onClick={handleBackdropClick}>
         <div className={styles.modal}>
-          <img src={largeImageURL} alt={tags} />
+          <img src={largeImageURL} alt={tags} className={styles.img}/>
         </div>
       </div>
     );

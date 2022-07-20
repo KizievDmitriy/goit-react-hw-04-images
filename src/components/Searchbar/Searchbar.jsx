@@ -11,18 +11,19 @@ export const Searchbar = ({ onSubmit }) => {
   const [imgName, setImgName] = useState('');
 
   const handleNameChange = event => {
-    setImgName(event.currentTarget.value);
+    setImgName(event.currentTarget.value.toLowerCase().trim());
   };
 
   const handleSubmit = event => {
     
     event.preventDefault();
    
-    if (imgName === '') {
+    if (imgName.trim() === '') {
       return toast.warn('Enter something, please');
     }
   
     onSubmit(imgName);
+    setImgName(event.currentTarget.value = '');
   };
 
     return (
