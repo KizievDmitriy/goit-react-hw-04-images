@@ -23,7 +23,7 @@ export const Searchbar = ({ onSubmit }) => {
     }
   
     onSubmit(imgName);
-    setImgName(event.currentTarget.value = '');
+    // setImgName(event.currentTarget.value = '');
   };
 
     return (
